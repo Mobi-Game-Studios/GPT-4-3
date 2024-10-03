@@ -60,8 +60,7 @@ app.get("/api/mini/response", async (req, res) => {
 
         res.json({ message, textContent: result });
     } catch (error) {
-        console.error("Error:", error);
-        res.status(500).json({ error: "An error occurred while processing the request." });
+        res.status(500).json({ error: "An error occurred while processing the request.", cause: error });
     }
 });
 
