@@ -1,0 +1,27 @@
+{
+  "name": "gpt43",
+  "version": "1.0.0",
+  "description": "Use GPT-4o mini for free, FOREVER.",
+  "main": "api/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mobi-Game-Studios/GPT-4-3.git"
+  },
+  "keywords": [
+    "gpt",
+    "freeforever"
+  ],
+  "author": "MOBI",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/Mobi-Game-Studios/GPT-4-3/issues"
+  },
+  "homepage": "https://github.com/Mobi-Game-Studios/GPT-4-3#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0"
+  }
+}
