@@ -1,28 +1,35 @@
 const express = require("express");
-const puppeteer = require("puppeteer");
 const cors = require("cors");
-const chromium = require("chrome-aws-lambda");
+const puppeteer = require("puppeteer");
 
 const app = express();
-app.use(express.json());
-app.use(cors());
 const PORT = 3000;
 
-app.get("/api/mini/response", async (req, res) => {
+// Middleware to enable CORS
+app.use(cors());
+
+// Middleware to parse JSON requests
+app.use(express.json());
+
+app.get("/api/response", async (req, res) => {
+    const logs = []; // Array to store log messages
     try {
         const message = req.headers["message"];
+        logs.push("Received message from header.");
 
-        const browser = await chromium.puppeteer.launch({
-            args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
-            defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath,
-            headless: true,
-        });
+        const browser = await puppeteer.launch({ headless: false }); // Launch browser
+        logs.push("Browser launched.");
+
         const page = await browser.newPage();
+        logs.push("New page created.");
 
-        await page.goto("https://www.chatgpt.com");
+        await page.goto("https://www.google.com");
+        logs.push("Navigated to Google.");
 
-        // Wait for the page to load and then execute the script
+        // Wait for the textarea to load
+        await page.waitForSelector("#prompt-textarea");
+        logs.push("Prompt textarea is ready.");
+
         const result = await page.evaluate(async () => {
             function waitForButtonToBeDisabled(buttonClassName) {
                 return new Promise((resolve, reject) => {
@@ -34,7 +41,7 @@ app.get("/api/mini/response", async (req, res) => {
                             return;
                         }
 
-                        const button = buttons[0]; // Get the first button from the collection
+                        const button = buttons[0];
                         if (button.disabled) {
                             clearInterval(interval);
                             resolve();
@@ -44,6 +51,7 @@ app.get("/api/mini/response", async (req, res) => {
             }
 
             document.getElementById("prompt-textarea").textContent = "I've already seen the movie";
+            console.log("Set prompt textarea content.");
 
             await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait for 2 seconds
 
@@ -52,12 +60,17 @@ app.get("/api/mini/response", async (req, res) => {
             );
 
             if (buttons.length > 0) {
-                buttons[0].click(); // Click the first button in the collection
+                buttons[0].click();
+                console.log("Clicked the first button.");
+            } else {
+                console.log("No buttons found.");
             }
 
             await waitForButtonToBeDisabled(
                 "mb-1 me-1 flex h-8 w-8 items-center justify-center rounded-full bg-black text-white transition-colors hover:opacity-70 focus-visible:outline-none focus-visible:outline-black disabled:text-[#f4f4f4] disabled:hover:opacity-100 dark:bg-white dark:text-black dark:focus-visible:outline-white disabled:dark:bg-token-text-quaternary dark:disabled:text-token-main-surface-secondary disabled:bg-[#D7D7D7]"
             );
+
+            console.log("Button is now disabled.");
 
             const elements = document.getElementsByClassName(
                 "min-h-8 text-message flex w-full flex-col items-end gap-2 whitespace-normal break-words [.text-message+&]:mt-5"
@@ -66,10 +79,14 @@ app.get("/api/mini/response", async (req, res) => {
         });
 
         await browser.close();
+        logs.push("Browser closed.");
 
-        res.json({ message, textContent: result });
+        // Respond with the logs and the result
+        res.json({ message, textContent: result, logs });
     } catch (error) {
-        res.status(500).json({ error: "An error occurred while processing the request.", cause: error });
+        console.error("Error:", error.message);
+        logs.push(`Error: ${error.message}`);
+        res.status(500).json({ error: "An error occurred while processing the request.", cause: error.message, logs });
     }
 });
 
