@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const puppeteer = require("puppeteer");
+const chromium = require("chrome-aws-lambda");
 
 const app = express();
 const PORT = 3000;
@@ -17,14 +18,20 @@ app.get("/api/response", async (req, res) => {
         const message = req.headers["message"];
         logs.push("Received message from header.");
 
-        const browser = await puppeteer.launch({ headless: false }); // Launch browser
+        const browser = await chromium.puppeteer.launch({
+            args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath,
+            headless: true,
+            ignoreHTTPSErrors: true,
+          })
         logs.push("Browser launched.");
 
         const page = await browser.newPage();
         logs.push("New page created.");
 
-        await page.goto("https://www.google.com");
-        logs.push("Navigated to Google.");
+        await page.goto("https://www.chatgpt.com");
+        logs.push("Navigated to ChatGPT.");
 
         // Wait for the textarea to load
         await page.waitForSelector("#prompt-textarea");
@@ -50,7 +57,7 @@ app.get("/api/response", async (req, res) => {
                 });
             }
 
-            document.getElementById("prompt-textarea").textContent = "I've already seen the movie";
+            document.getElementById("prompt-textarea").textContent = message;
             console.log("Set prompt textarea content.");
 
             await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait for 2 seconds
@@ -86,7 +93,7 @@ app.get("/api/response", async (req, res) => {
     } catch (error) {
         console.error("Error:", error.message);
         logs.push(`Error: ${error.message}`);
-        res.status(500).json({ error: "An error occurred while processing the request.", cause: error.message, logs });
+        res.status(500).json({ error: "An error occurred while processing the request, Please report this response to MOBI.", cause: error.message, logs });
     }
 });
 
