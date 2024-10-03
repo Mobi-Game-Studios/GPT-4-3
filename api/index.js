@@ -1,5 +1,7 @@
 const express = require("express");
 const puppeteer = require("puppeteer");
+const cors = require("cors");
+const chromium = require("chrome-aws-lambda");
 
 const app = express();
 app.use(express.json());
@@ -10,7 +12,12 @@ app.get("/api/mini/response", async (req, res) => {
     try {
         const message = req.headers["message"];
 
-        const browser = await puppeteer.launch();
+        const browser = await chromium.puppeteer.launch({
+            args: [...chromium.args, "--no-sandbox", "--disable-setuid-sandbox"],
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath,
+            headless: true,
+        });
         const page = await browser.newPage();
 
         await page.goto("https://www.chatgpt.com");
