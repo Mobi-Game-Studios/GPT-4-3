@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Use GPT-4o mini for free, FOREVER.",
   "main": "api/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Mobi-Game-Studios/GPT-4-3.git"
@@ -21,9 +18,13 @@
   },
   "homepage": "https://github.com/Mobi-Game-Studios/GPT-4-3#readme",
   "dependencies": {
+    "@vercel/node": "^3.2.18",
     "cors": "^2.8.5",
     "express": "^4.21.0",
     "puppeteer": "^23.5.0",
     "vercel": "^37.6.1"
+  },
+  "engines": {
+    "node": "18.15.0"
   }
 }
