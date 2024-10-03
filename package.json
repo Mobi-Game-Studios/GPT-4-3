@@ -23,6 +23,7 @@
     "cors": "^2.8.5",
     "express": "^4.21.0",
     "puppeteer": "^23.5.0",
+    "puppeteer-core": "^23.5.0",
     "vercel": "^37.6.1"
   },
   "engines": {

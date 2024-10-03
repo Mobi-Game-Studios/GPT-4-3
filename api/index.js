@@ -19,12 +19,20 @@ app.get("/api/response", async (req, res) => {
         logs.push("Received message from header.");
 
         const browser = await chromium.puppeteer.launch({
-            args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
+            args: [
+                ...chromium.args,
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--headless", // Headless is true by default but good to include
+            ],
             defaultViewport: chromium.defaultViewport,
             executablePath: await chromium.executablePath,
+            ignoreDefaultArgs: ["--enable-automation"],
             headless: true,
             ignoreHTTPSErrors: true,
-          })
+        });
+        
         logs.push("Browser launched.");
 
         const page = await browser.newPage();
