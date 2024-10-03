@@ -2,6 +2,8 @@ const express = require("express");
 const puppeteer = require("puppeteer");
 
 const app = express();
+app.use(express.json());
+app.use(cors());
 const PORT = 3000;
 
 app.get("/api/mini/response", async (req, res) => {
